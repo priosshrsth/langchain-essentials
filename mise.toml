@@ -1,0 +1,14 @@
+[tools]
+deno = "latest"
+bun = "latest"
+node = "lts"
+uv = "latest"
+
+[env]
+# Let Deno (the notebook kernel) trust the portless local CA for https://*.localhost.
+# Must be set before the kernel starts, so it can't live in .env.
+DENO_TLS_CA_STORE = "system"
+
+[tasks.lab]
+description = "Start JupyterLab (use the Deno kernel for the notebooks)"
+run = "uvx --from jupyterlab jupyter lab"

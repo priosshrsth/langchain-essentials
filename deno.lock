@@ -1,0 +1,40 @@
+{
+  "version": "5",
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@langchain/anthropic@^1.3.26",
+        "npm:@langchain/classic@^1.0.27",
+        "npm:@langchain/community@^1.1.27",
+        "npm:@langchain/core@^1.3.1",
+        "npm:@langchain/langgraph-cli@^1.1.17",
+        "npm:@langchain/langgraph@^1.2.6",
+        "npm:@langchain/mcp-adapters@^1.1.3",
+        "npm:@langchain/ollama@^1.3.1",
+        "npm:@langchain/openai@^1.8.0",
+        "npm:ansis@^4.2.0",
+        "npm:better-sqlite3@^12.8.0",
+        "npm:dotenv@^17.4.0",
+        "npm:langchain@^1.2.39",
+        "npm:langsmith@~0.11.4",
+        "npm:sqlite3@^5.1.7",
+        "npm:tsx@^4.21.0",
+        "npm:typeorm@~0.3.29",
+        "npm:zod@^4.3.6"
+      ],
+      "overrides": {
+        "fast-xml-parser": ">=4.5.4",
+        "tar": "7.5.21",
+        "hono": ">=4.12.4",
+        "@hono/node-server": ">=1.19.10",
+        "express-rate-limit": ">=8.2.2",
+        "langsmith": "^0.11.4",
+        "@tootallnate/once": ">=3.0.1",
+        "path-to-regexp": ">=8.4.0",
+        "ibm-cloud-sdk-core": ">=5.4.9",
+        "file-type": ">=21.3.1",
+        "brace-expansion": ">=5.0.5"
+      }
+    }
+  }
+}
