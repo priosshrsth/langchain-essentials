@@ -8,7 +8,11 @@ uv = "latest"
 # Let Deno (the notebook kernel) trust the portless local CA for https://*.localhost.
 # Must be set before the kernel starts, so it can't live in .env.
 DENO_TLS_CA_STORE = "system"
+# Same for Node (the `bun run dev` Agent Server runs on Node).
+NODE_USE_SYSTEM_CA = "1"
 
 [tasks.lab]
 description = "Start JupyterLab (use the Deno kernel for the notebooks)"
-run = "uvx --from jupyterlab jupyter lab"
+# answer_yes: Ctrl+C shuts down immediately instead of prompting y/n
+# (the prompt can't read stdin once mise has exited, which orphans the server).
+run = "uvx --from jupyterlab jupyter lab --ServerApp.answer_yes=True"

@@ -11,7 +11,7 @@ import { z } from "zod";
  * Model
  * - Local Ollama (http://localhost:11434), no API key needed
  */
-const llm = new ChatOllama({ model: "qwen3:8b" });
+const llm = new ChatOllama({ model: "qwen3.5:9b" });
 
 /**
  * Database
@@ -22,13 +22,14 @@ const datasource = new DataSource({
   type: "sqlite",
   database: "./Chinook.db",
 });
-const db = await SqlDatabase.fromDataSourceParams({ appDataSource: datasource });
+const db = await SqlDatabase.fromDataSourceParams({
+  appDataSource: datasource,
+});
 
 /**
  * Schema (included in the prompt to ground the model)
  */
 const SCHEMA = await db.getTableInfo();
-
 
 /**
  * Tool (function-first signature; matches LangChain umbrella API)
@@ -46,9 +47,8 @@ export const execute_sql = tool(
     name: "execute_sql",
     description: "Execute a READ-ONLY SQLite SELECT query and return results.",
     schema: z.object({ query: z.string() }),
-  }
+  },
 );
-
 
 /**
  * System prompt (includes schema + rules)
@@ -56,12 +56,17 @@ export const execute_sql = tool(
 const SYSTEM_PROMPT = `
 You are a careful SQLite analyst.
 
+Database schema (use these exact table and column names):
+${SCHEMA}
+
 Rules:
+- Only use tables and columns that appear in the schema above.
 - Think step-by-step.
 - When you need data, call the tool \`execute_sql\` with ONE SELECT query.
 - Read-only only; no INSERT/UPDATE/DELETE/ALTER/DROP/CREATE/REPLACE/TRUNCATE.
 - Limit to 5 rows unless user explicitly asks otherwise.
 - If the tool returns 'Error:', revise the SQL and try again.
+- You should have up to date knowledge of you db schema before generating queries.
 - Limit the number of attempts to 5.
 - Prefer explicit column lists; avoid SELECT *.
 `;
@@ -83,4 +88,3 @@ const agent = createAgent({
 });
 
 export default agent;
-

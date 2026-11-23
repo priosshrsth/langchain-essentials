@@ -39,16 +39,16 @@ Deno reads the `node_modules` that Bun installs, so the notebooks still run on D
 
 ### 4. Start Ollama
 
-All lessons and `sql_agent2.ts` run locally on Ollama with `qwen3:8b`, so you don't need an Anthropic or OpenAI key:
+All lessons and `sql_agent2.ts` run locally on Ollama with `qwen3.5:9b`, so you don't need an Anthropic or OpenAI key:
 
 ```sh
-ollama pull qwen3:8b   # once
+ollama pull qwen3.5:9b   # once
 ollama serve           # or: systemctl start ollama
 ```
 
 By default `@langchain/ollama` connects to `http://127.0.0.1:11434`. To go through portless instead, set `OLLAMA_BASE_URL=https://ollama.localhost` in `.env`. The Deno kernel then needs `DENO_TLS_CA_STORE=system` to trust portless's local CA. `mise.toml` sets that, so start Jupyter with `mise run lab`.
 
-The notebooks use `model: "ollama:qwen3:8b"`. To try another model, change that string, for example to `"anthropic:claude-sonnet-4-6"` (needs `ANTHROPIC_API_KEY`) or `"openai:gpt-5-mini"` (needs `OPENAI_API_KEY`). An 8B model makes more mistakes with tools and SQL than the hosted models the course was written for.
+The notebooks use `model: "ollama:qwen3.5:9b"`. To try another model, change that string, for example to `"anthropic:claude-sonnet-4-6"` (needs `ANTHROPIC_API_KEY`) or `"openai:gpt-5-mini"` (needs `OPENAI_API_KEY`). A 9B model makes more mistakes with tools and SQL than the hosted models the course was written for.
 
 ### 5. Optional: `.env`
 
@@ -86,6 +86,10 @@ bun sql_agent2.ts
 bun run dev         # LangSmith Studio (langgraphjs dev)
 ```
 
+Studio only shows the agents registered in `langgraph.json`: `sql_agent` (`sql_agent2.ts`) and `weather` (the L3 weather agent, `weather_agent.ts`). Choose between them in the graph dropdown. Agents defined in notebooks exist only in the kernel, so they can't be opened in Studio. You can still see their traces in LangSmith. To add one, export it from a `.ts` file and add it to `langgraph.json`.
+
+The `dev` script sets `NODE_USE_SYSTEM_CA=1` so the Node-based server trusts the portless certificate on `https://ollama.localhost`.
+
 See the [Studio docs](https://docs.langchain.com/oss/python/langchain/studio) for more.
 
 L5 starts its MCP server with `npx`, which works because mise provides Node. To use Bun there instead, change `npx` to `bunx` in the notebook.
@@ -99,6 +103,8 @@ Zed's REPL can use the Deno kernel, but only in plain `.ts` files. It can't run 
 ```
 
 ## 📚 Lessons
+
+> **Before you start:** read [`SCHEMA.md`](SCHEMA.md) for the `Chinook.db` tables and relationships (with an ER diagram). The SQL agent in L1 and L6 queries this database.
 
 - **L1_fast_agent**: build an SQL agent with `createAgent` in a few lines, and explore it in LangSmith Studio.
 
