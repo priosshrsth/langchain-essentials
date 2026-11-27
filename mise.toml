@@ -8,7 +8,7 @@ uv = "latest"
 # Let Deno (the notebook kernel) trust the portless local CA for https://*.localhost.
 # Must be set before the kernel starts, so it can't live in .env.
 DENO_TLS_CA_STORE = "system"
-# Same for Node (the `bun run dev` Agent Server runs on Node).
+# Same for Node-compat code (`bun run dev` runs the Agent Server on Bun via `bun --bun`).
 NODE_USE_SYSTEM_CA = "1"
 
 [tasks.lab]

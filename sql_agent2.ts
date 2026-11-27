@@ -2,8 +2,7 @@
 import "dotenv/config";
 import { createAgent, tool } from "langchain";
 import { ChatOllama } from "@langchain/ollama";
-import { DataSource } from "typeorm";
-import { SqlDatabase } from "@langchain/classic/sql_db";
+import { SQL } from "bun";
 import { MemorySaver } from "@langchain/langgraph";
 import { z } from "zod";
 
@@ -15,21 +14,40 @@ const llm = new ChatOllama({ model: "qwen3.5:9b" });
 
 /**
  * Database
- * - Make sure ./Chinook.db exists (you already have it in this repo)
- * - TypeORM DataSource + SqlDatabase (matches L1/L6 patterns)
+ * - Bun's built-in SQL client with the SQLite adapter (Bun runtime only)
+ * - Opened read-write; the system prompt keeps the agent to SELECTs
  */
-const datasource = new DataSource({
-  type: "sqlite",
-  database: "./Chinook.db",
-});
-const db = await SqlDatabase.fromDataSourceParams({
-  appDataSource: datasource,
+const db = new SQL({
+  adapter: "sqlite",
+  filename: `${import.meta.dir}/Chinook.db`,
 });
 
 /**
  * Schema (included in the prompt to ground the model)
+ * - CREATE TABLE statements + 3 sample rows per table
  */
-const SCHEMA = await db.getTableInfo();
+async function getTableInfo(sampleRows = 3): Promise<string> {
+  const tables = await db<{ name: string; sql: string }[]>`
+    SELECT name, sql FROM sqlite_master
+    WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+    ORDER BY name`;
+  const parts: string[] = [];
+  for (const { name, sql } of tables) {
+    const rows = await db.unsafe(`SELECT * FROM "${name}" LIMIT ${sampleRows}`);
+    const cols = rows.length ? Object.keys(rows[0]) : [];
+    const sample = rows
+      .map((r: Record<string, unknown>) =>
+        cols.map((c) => String(r[c])).join(" "),
+      )
+      .join("\n");
+    parts.push(
+      `${sql};\n/*\n${sampleRows} rows from ${name} table:\n${cols.join(" ")}\n${sample}\n*/`,
+    );
+  }
+  return parts.join("\n\n");
+}
+
+const SCHEMA = await getTableInfo();
 
 /**
  * Tool (function-first signature; matches LangChain umbrella API)
@@ -38,7 +56,8 @@ const SCHEMA = await db.getTableInfo();
 export const execute_sql = tool(
   async ({ query }: { query: string }) => {
     try {
-      return await db.run(query);
+      const rows = await db.unsafe(query);
+      return JSON.stringify([...rows]);
     } catch (e: any) {
       return `Error: ${e?.message ?? String(e)}`;
     }

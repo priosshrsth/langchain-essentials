@@ -6,7 +6,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_USE_SYSTEM_CA=1 langgraphjs dev"
+    "dev": "NODE_USE_SYSTEM_CA=1 bun --bun langgraphjs dev"
   },
   "keywords": [
     "langchain",
@@ -35,7 +35,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@langchain/langgraph-cli": "^1.1.17"
+    "@langchain/langgraph-cli": "^1.1.17",
+    "@types/bun": "^1.4.5"
   },
   "trustedDependencies": [
     "better-sqlite3",
